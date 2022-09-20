@@ -20,4 +20,4 @@
 
 # to run the app container, run
 
-    docker run -dp 3000:3000 -w /app -v "$(pwd):/app" --network bodin-oppgavetv-app -e MYSQL_HOST=bodin-oppgavetv-sql -e MYSQL_USER=root -e MYSQL_PASSWORD=secret -e MYSQL_DB=oppgavetv bodintv
+    docker run -dp 3000:3000 -v "$(pwd):/app" --network bodin-oppgavetv-app -e MYSQL_HOST=bodin-oppgavetv-sql -e MYSQL_USER=root -e MYSQL_PASSWORD=secret -e MYSQL_DB=oppgavetv bodintv

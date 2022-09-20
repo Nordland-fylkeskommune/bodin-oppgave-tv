@@ -1,0 +1,7 @@
+{
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"workspaceFolder": "/usr/src/bodintv/app"
+	
+}

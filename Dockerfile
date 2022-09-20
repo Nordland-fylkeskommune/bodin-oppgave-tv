@@ -6,6 +6,7 @@ RUN mkdir -p /usr/src/bodintv/app
 WORKDIR /usr/src/bodintv/app
 
 COPY package*.json /usr/src/bodintv/app
+
 RUN npm install
 
 COPY . /usr/src/bodintv/app
