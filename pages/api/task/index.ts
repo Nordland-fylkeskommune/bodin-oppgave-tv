@@ -22,7 +22,16 @@ const handler = nextConnect({
 })
   // GET /api/task
   // TODO: #2 Get /api/task skal returnere alle "tasks" fra databasen.
-  .get((req: NextApiRequest, res: NextApiResponse<taskIndexGetResponse>) => {})
+  .get(
+    async (req: NextApiRequest, res: NextApiResponse<taskIndexGetResponse>) => {
+      // prisma
+      const prisma = new PrismaClient();
+      await prisma.$connect();
+      let tasks = await prisma.tasks.findMany();
+      await prisma.$disconnect();
+      res.status(200).json({ tasks: tasks });
+    },
+  )
   // POST /api/task
   // TODO: #3 Post /api/task skal oprette en ny "task" i databasen.
   .post((req: NextApiRequest, res: NextApiResponse) => {})
