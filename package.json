@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "prisma db seed --preview-feature",
+    "prisma:migrate": "prisma migrate dev --preview-feature"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -25,6 +31,7 @@
     "@types/react": "18.0.17",
     "@types/react-dom": "18.0.6",
     "@types/uuid": "^8.3.4",
+    "cypress": "^10.9.0",
     "eslint": "8.22.0",
     "eslint-config-next": "12.2.5",
     "prisma": "^4.3.1",
