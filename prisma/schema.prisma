@@ -6,3 +6,17 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model tasks {
+  id         Int       @id @default(autoincrement())
+  what       String?
+  where      String?
+  priority   Int?
+  start      DateTime?
+  doneby     DateTime?
+  done       DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  @@index([id], map: "id")
+}
