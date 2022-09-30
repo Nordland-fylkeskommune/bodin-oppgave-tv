@@ -5,6 +5,9 @@ jobs:
   # setup a test database
   mysql:
     runs-on: ubuntu-latest
+    env:
+      MYSQL_ROOT_PASSWORD: root
+      DATABASE_URL: "mysql://root:root@localhost:3306/oppgavetv"
     services:
       mysql:
         image: mysql:5.7
@@ -32,4 +35,3 @@ jobs:
         run: |
           mysql --host 127.0.0.1 --port 3306 --user root --password=root -e "SHOW TABLES FROM oppgavetv;"
           mysql --host 127.0.0.1 --port 3306 --user root --password=root -e "SELECT * FROM oppgavetv.tasks;"
-          
