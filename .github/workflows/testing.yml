@@ -1,0 +1,44 @@
+on: 
+  push:
+    branches: [ "danielmb/*" ]
+jobs:
+  # setup a test database
+  mysql:
+    runs-on: ubuntu-latest
+    env:
+      MYSQL_ROOT_PASSWORD: root
+      DATABASE_URL: "mysql://root:root@localhost:3306/oppgavetv"
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - name: Validate MySQL
+        run: |
+          sudo apt-get install mysql-client
+          mysql --host 127.0.0.1 --port 3306 --user root --password=root -e "SHOW DATABASES;"
+          mysql --host 127.0.0.1 --port 3306 --user root --password=root -e "CREATE DATABASE oppgavetv;"
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Node.js setup 
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npm install
+      - run: npx prisma migrate dev --name init
+      - run: npx prisma db seed --preview-feature
+      - name: "DEBUG: Check database"
+        run: |
+          mysql --host 127.0.0.1 --port 3306 --user root --password=root -e "SHOW TABLES FROM oppgavetv;"
+          mysql --host 127.0.0.1 --port 3306 --user root --password=root -e "SELECT * FROM oppgavetv.tasks;"
+      - name: Run cypress test
+        uses: cypress-io/github-action@v4
+        with:
+          build: npm run build
+          start: npm run start
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 10
