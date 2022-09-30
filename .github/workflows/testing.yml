@@ -28,3 +28,8 @@ jobs:
       - run: npm install
       - run: npx prisma migrate dev --name init
       - run: npx prisma db seed --preview-feature
+      - name: "DEBUG: Check database"
+        run: |
+          mysql --host 127.0.0.1 --port 3306 --user root --password=root -e "SHOW TABLES FROM oppgavetv;"
+          mysql --host 127.0.0.1 --port 3306 --user root --password=root -e "SELECT * FROM oppgavetv.tasks;"
+          
