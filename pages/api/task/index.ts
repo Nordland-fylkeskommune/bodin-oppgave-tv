@@ -9,20 +9,7 @@ interface errorResponse {
 interface taskIndexGetResponse {
   tasks: Prisma.tasksGetPayload<{}>[];
 }
-/*
-model tasks {
-  id         Int       @id @default(autoincrement())
-  what       String?
-  where      String?
-  priority   Int?
-  start      DateTime?
-  doneby     DateTime?
-  done       DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-
-  @@index([id], map: "id")
-}*/
+// TODO: #12 Add middleware to handle errors and 405
 type Task = {
   what?: string;
   where?: string;
@@ -40,7 +27,6 @@ interface taskIndexPostResponse {
   task: Task;
 }
 
-// taskIndexPostRequestGuard
 let validateDateString = (dateToValidate: any): boolean => {
   console.log(dateToValidate);
   if (typeof dateToValidate !== 'string') return false;
@@ -113,47 +99,7 @@ const postGuard = (
     }
   });
   return { errors, allowed: errors.length === 0 };
-  /*if (task) {
-    if (!task.what) {
-      errors.push('what is missing');
-    }
-    if (typeof task.what !== 'string') {
-      errors.push('what is not a string');
-    }
-    if (!task.where) {
-      errors.push('where is missing');
-    }
-    if (typeof task.where !== 'string') {
-      errors.push('where is not a string');
-    }
-    if (task.priority && typeof task.priority !== 'number') {
-      errors.push('priority is not a number');
-    }
-    if (task.priority && (task.priority < 1 || task.priority > 3)) {
-      errors.push('priority is not between 1 and 3');
-    }
-    if (task.start && typeof task.start !== 'string') {
-      errors.push('start is not a string');
-    }
-    if (task.start && !validateDateString(task.start)) {
-      errors.push('start is not a valid date');
-    }
-
-    if (task.doneby && typeof task.doneby !== 'string') {
-      errors.push('doneby is not a string');
-    }
-    if (task.doneby && !validateDateString(task.doneby)) {
-      errors.push('doneby is not a valid date');
-    }
-    if (task.done && typeof task.done !== 'string') {
-      errors.push('done is not a string');
-    }
-    if (task.done && !validateDateString(task.done)) {
-      errors.push('done is not a valid date');
-    }
-  }*/
 };
-
 const handler = nextConnect({
   onError(error, req: NextApiRequest, res: NextApiResponse<errorResponse>) {
     res.status(501).json({
@@ -220,5 +166,4 @@ const handler = nextConnect({
   // PUT /api/task
   // TODO: #5 PUT /api/task skal oppdatere en "task" i databasen.
   .put((req: NextApiRequest, res: NextApiResponse) => {});
-
 export default handler;
