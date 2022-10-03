@@ -124,7 +124,6 @@ const handler = nextConnect({
     },
   )
   // POST /api/task
-  // TODO: #3 Post /api/task skal oprette en ny "task" i databasen.
   .post(async (req: taskIndexPostRequest, res: NextApiResponse) => {
     let { errors, allowed } = postGuard(req);
     if (!allowed) {

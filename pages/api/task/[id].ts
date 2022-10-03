@@ -32,8 +32,6 @@ const handler = nextConnect({
     // Not implemented
     res.status(501).json({ error: 'Not implemented' });
   })
-  // DELETE /api/task/[id]
-  // TODO: #4 DELETE /api/task skal slette en "task" fra databasen. Moved to /api/task/[id].ts
   .delete(async (req: TaskIDDeleteRequest, res: NextApiResponse) => {
     const prisma = new PrismaClient();
     const id = req.query.id;
@@ -53,6 +51,5 @@ const handler = nextConnect({
     }
   });
 
-// PUT /api/task
 // TODO: #5 PUT /api/task skal oppdatere en "task" i databasen. Moved to /api/task/[id].ts
 export default handler;
