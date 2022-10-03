@@ -1,6 +1,6 @@
 on: 
   push:
-    branches: [ "danielmb/*" ]
+    branches: [ "*" ]
   workflow_dispatch:
     
 jobs:

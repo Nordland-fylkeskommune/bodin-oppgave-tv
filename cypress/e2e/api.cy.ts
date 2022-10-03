@@ -17,13 +17,15 @@ context('Testing /api/task/index.ts', () => {
     });
   });
   it('should create a task', () => {
-    const task: Prisma.tasksCreateInput = {
-      what: 'Test Task',
-      where: 'Test Location',
-      priority: 1,
-      start: new Date(),
-      doneby: new Date(),
-      done: new Date(),
+    const task: { task: Prisma.tasksCreateInput } = {
+      task: {
+        what: 'Test Task',
+        where: 'Test Location',
+        priority: 1,
+        start: new Date(),
+        doneby: new Date(),
+        done: new Date(),
+      },
     };
     cy.request('POST', 'http://localhost:3000/api/task/', task).then(
       (response) => {
@@ -34,14 +36,17 @@ context('Testing /api/task/index.ts', () => {
     );
   });
   it('should update a task', () => {
-    const task: Prisma.tasksUpdateInput = {
-      what: 'Test Task',
-      where: 'Test Location',
-      priority: 1,
-      start: new Date(),
-      doneby: new Date(),
-      done: new Date(),
+    const task: { task: Prisma.tasksUpdateInput } = {
+      task: {
+        what: 'Test Task',
+        where: 'Test Location',
+        priority: 1,
+        start: new Date(),
+        doneby: new Date(),
+        done: new Date(),
+      },
     };
+
     cy.request('PUT', 'http://localhost:3000/api/task/1', task).then(
       (response) => {
         expect(response.status).to.eq(200);
