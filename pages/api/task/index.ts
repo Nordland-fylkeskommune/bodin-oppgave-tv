@@ -9,6 +9,7 @@ interface errorResponse {
 interface taskIndexGetResponse {
   tasks: Prisma.tasksGetPayload<{}>[];
 }
+// TODO: #12 Add middleware to handle errors and 405
 const handler = nextConnect({
   onError(error, req: NextApiRequest, res: NextApiResponse<errorResponse>) {
     res.status(501).json({
@@ -25,12 +26,9 @@ const handler = nextConnect({
   .get((req: NextApiRequest, res: NextApiResponse<taskIndexGetResponse>) => {})
   // POST /api/task
   // TODO: #3 Post /api/task skal oprette en ny "task" i databasen.
-  .post((req: NextApiRequest, res: NextApiResponse) => {})
-  // DELETE /api/task
-  // TODO: #4 DELETE /api/task skal slette en "task" fra databasen.
-  .delete((req: NextApiRequest, res: NextApiResponse) => {})
-  // PUT /api/task
-  // TODO: #5 PUT /api/task skal oppdatere en "task" i databasen.
-  .put((req: NextApiRequest, res: NextApiResponse) => {});
-
+  .post((req: NextApiRequest, res: NextApiResponse) => {});
+// DELETE /api/task
+// TODO: #4 DELETE /api/task skal slette en "task" fra databasen. Moved to /api/task/[id].ts
+// PUT /api/task
+// TODO: #5 PUT /api/task skal oppdatere en "task" i databasen. Moved to /api/task/[id].ts
 export default handler;
