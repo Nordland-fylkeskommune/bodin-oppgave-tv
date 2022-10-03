@@ -177,11 +177,5 @@ const handler = nextConnect({
         errorResponseCode: 500,
       };
     }
-  })
-  // DELETE /api/task
-  // TODO: #4 DELETE /api/task skal slette en "task" fra databasen.
-  .delete((req: NextApiRequest, res: NextApiResponse) => {})
-  // PUT /api/task
-  // TODO: #5 PUT /api/task skal oppdatere en "task" i databasen.
-  .put((req: NextApiRequest, res: NextApiResponse) => {});
+  });
 export default handler;
