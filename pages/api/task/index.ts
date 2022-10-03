@@ -6,11 +6,11 @@ interface errorResponse {
   error: string;
   errorRef: string;
 }
-interface taskIndexGetResponse {
+export interface taskIndexGetResponse {
   tasks: Prisma.tasksGetPayload<{}>[];
 }
 // TODO: #12 Add middleware to handle errors and 405
-type Task = {
+export type Task = {
   what?: string;
   where?: string;
   priority?: number;
@@ -18,12 +18,12 @@ type Task = {
   doneby?: string;
   done?: string;
 };
-interface taskIndexPostRequest extends NextApiRequest {
+export interface taskIndexPostRequest extends NextApiRequest {
   body: {
     task: Task;
   };
 }
-interface taskIndexPostResponse {
+export interface taskIndexPostResponse {
   task: Task;
 }
 
