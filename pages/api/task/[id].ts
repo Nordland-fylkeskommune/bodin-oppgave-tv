@@ -26,8 +26,12 @@ interface TaskIDPutRequest extends NextApiRequest {
 // TODO: #12 Add middleware to handle errors and 405
 const handler = nextConnect({
   onError(error, req: NextApiRequest, res: NextApiResponse<errorResponse>) {
+    let errorCode = 500;
+    if (error.errorResponseCode) {
+      errorCode = error.errorResponseCode;
+    }
     console.error(error);
-    res.status(501).json({
+    res.status(errorCode).json({
       error: `Sorry something Happened! ${error.userMessage}`,
       errorRef: uuidv4(),
     });
@@ -39,23 +43,16 @@ const handler = nextConnect({
   // GET /api/task/[id]
   .get(async (req: NextApiRequest, res: NextApiResponse) => {
     // implemented
+    let task;
     try {
       const prisma = new PrismaClient();
       await prisma.$connect();
-      let task = await prisma.tasks.findUnique({
+      task = await prisma.tasks.findUnique({
         where: {
           id: Number(req.query.id),
         },
       });
       await prisma.$disconnect();
-      if (!task) {
-        throw {
-          userMessage: 'Task not found',
-          debugMessage: 'Task not found',
-          errorResponseCode: 404,
-        };
-      }
-      res.status(200).json({ task: task });
     } catch (error) {
       throw {
         userMessage: 'Error getting task',
@@ -63,6 +60,14 @@ const handler = nextConnect({
         errorResponseCode: 500,
       };
     }
+    if (!task) {
+      throw {
+        userMessage: 'Task not found',
+        debugMessage: 'Task not found',
+        errorResponseCode: 404,
+      };
+    }
+    res.status(200).json({ task });
   })
 
   .put(async (req: TaskIDPutRequest, res: NextApiResponse) => {
