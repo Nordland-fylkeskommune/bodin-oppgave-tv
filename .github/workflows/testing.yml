@@ -1,6 +1,8 @@
 on: 
   push:
     branches: [ "danielmb/*" ]
+  workflow_dispatch:
+    
 jobs:
   # setup a test database
   mysql:
