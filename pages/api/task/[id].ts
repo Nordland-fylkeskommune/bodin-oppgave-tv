@@ -7,9 +7,6 @@ interface errorResponse {
   error: string;
   errorRef: string;
 }
-interface taskIndexGetResponse {
-  tasks: Prisma.tasksGetPayload<{}>[];
-}
 interface TaskIDDeleteRequest extends NextApiRequest {
   query: {
     id: string;
@@ -67,6 +64,7 @@ const handler = nextConnect({
       };
     }
   })
+
   .put(async (req: TaskIDPutRequest, res: NextApiResponse) => {
     try {
       const prisma = new PrismaClient();
