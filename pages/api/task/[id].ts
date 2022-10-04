@@ -1,8 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import { v4 as uuidv4 } from 'uuid';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { guard, keyHandler, Task } from '.';
+import databaseWrapper from '../../../lib/db';
 // TODO: #20 #19 Move database request to lib/db.ts
 interface errorResponse {
   error: string;
@@ -46,14 +47,14 @@ const handler = nextConnect({
     // implemented
     let task;
     try {
-      const prisma = new PrismaClient();
-      await prisma.$connect();
-      task = await prisma.tasks.findUnique({
+      const prisma = await new databaseWrapper().connect();
+      task = await prisma.getTask(Number(req.query.id));
+      await prisma.disconnect();
+      /*task = await prisma.tasks.findUnique({
         where: {
           id: Number(req.query.id),
         },
-      });
-      await prisma.$disconnect();
+      });*/
     } catch (error) {
       throw {
         userMessage: 'Error getting task',
@@ -73,7 +74,6 @@ const handler = nextConnect({
 
   .put(async (req: TaskIDPutRequest, res: NextApiResponse) => {
     try {
-      const prisma = new PrismaClient();
       let { errors, allowed } = guard(req.body.task, new keyHandler().put());
       if (!allowed) {
         throw {
@@ -82,36 +82,20 @@ const handler = nextConnect({
           errorResponseCode: 400,
         };
       }
-      await prisma.$connect();
-      // Check if task exists
-      let task = await prisma.tasks.findUnique({
-        where: {
-          id: Number(req.query.id),
-        },
-      });
-      if (!task) {
+      const prisma = await new databaseWrapper().connect();
+      let updated = await prisma.updateTaskIfExist(
+        Number(req.query.id),
+        req.body.task,
+      );
+      await prisma.disconnect();
+      if (updated === null)
         throw {
           userMessage: 'Task not found',
           debugMessage: 'Task not found',
           errorResponseCode: 404,
         };
-      }
-      let updated = await prisma.tasks.update({
-        where: {
-          id: Number(req.query.id),
-        },
-        data: {
-          what: req.body.task.what,
-          where: req.body.task.where,
-          priority: req.body.task.priority,
-          start: req.body.task.start,
-          doneby: req.body.task.doneby,
-          done: req.body.task.done,
-        },
-      });
-      if (updated) {
-        return res.status(200).json({ task: updated });
-      }
+      console.log(updated);
+      return res.status(200).json({ task: updated });
     } catch (error) {
       throw {
         userMessage: 'Error updating task',
@@ -127,15 +111,9 @@ const handler = nextConnect({
       res: NextApiResponse<TaskIDDeleteResponse>,
     ) => {
       try {
-        const prisma = new PrismaClient();
-        await prisma.$connect();
-        const id = req.query.id;
-        const task = await prisma.tasks.delete({
-          where: {
-            id: Number(id),
-          },
-        });
-        res.status(200).json({ task: task });
+        const prisma = await new databaseWrapper().connect();
+        let deleted = await prisma.deleteTask(Number(req.query.id));
+        res.status(200).json({ task: deleted });
       } catch (error) {
         throw {
           userMessage: 'Error deleting task',
