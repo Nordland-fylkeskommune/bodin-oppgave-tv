@@ -20,3 +20,17 @@ model tasks {
 
   @@index([id], map: "id")
 }
+
+model errors {
+  id           Int      @id @default(autoincrement())
+  message      String?
+  user_message String?
+  error_ref    String?
+  url          String?
+  method       String?
+  headers      String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([id], map: "id")
+}

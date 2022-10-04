@@ -3,6 +3,7 @@ import nextConnect from 'next-connect';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { guard, keyHandler, Task } from '.';
+import { errorHandler } from '../../../middleware/nextConnect';
 interface errorResponse {
   error: string;
   errorRef: string;
@@ -24,22 +25,7 @@ interface TaskIDPutRequest extends NextApiRequest {
   };
 }
 // TODO: #12 Add middleware to handle errors and 405
-const handler = nextConnect({
-  onError(error, req: NextApiRequest, res: NextApiResponse<errorResponse>) {
-    let errorCode = 500;
-    if (error.errorResponseCode) {
-      errorCode = error.errorResponseCode;
-    }
-    console.error(error);
-    res.status(errorCode).json({
-      error: `Sorry something Happened! ${error.userMessage}`,
-      errorRef: uuidv4(),
-    });
-  },
-  onNoMatch(req: NextApiRequest, res: NextApiResponse) {
-    res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
-  },
-})
+const handler = nextConnect(errorHandler)
   // GET /api/task/[id]
   .get(async (req: NextApiRequest, res: NextApiResponse) => {
     // implemented
