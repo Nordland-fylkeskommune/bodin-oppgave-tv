@@ -3,6 +3,7 @@ import nextConnect from 'next-connect';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { guard, keyHandler, Task } from '.';
+// TODO: #20 #19 Move database request to lib/db.ts
 interface errorResponse {
   error: string;
   errorRef: string;
