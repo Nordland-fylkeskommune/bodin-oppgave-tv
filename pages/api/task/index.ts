@@ -1,8 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import { v4 as uuidv4 } from 'uuid';
-import { Prisma, PrismaClient } from '@prisma/client';
 import { errorHandler } from '../../../middleware/nextConnect';
+import { Prisma } from '@prisma/client';
+import databaseWrapper from '../../../lib/db';
 interface errorResponse {
   error: string;
   errorRef: string;
@@ -135,10 +136,8 @@ const handler = nextConnect(errorHandler)
   .get(
     async (req: NextApiRequest, res: NextApiResponse<taskIndexGetResponse>) => {
       // prisma
-      const prisma = new PrismaClient();
-      await prisma.$connect();
-      let tasks = await prisma.tasks.findMany();
-      await prisma.$disconnect();
+      const prisma = new databaseWrapper();
+      const tasks = await prisma.getTasks();
       res.status(200).json({ tasks: tasks });
     },
   )
@@ -154,19 +153,9 @@ const handler = nextConnect(errorHandler)
       //return res.status(400).json({ error: errors.join(', ') });
     }
     const task = req.body.task;
-    const prisma = new PrismaClient();
-    await prisma.$connect();
+    const prisma = new databaseWrapper();
     try {
-      let created = await prisma.tasks.create({
-        data: {
-          what: task.what,
-          where: task.where,
-          priority: task.priority,
-          start: task.start,
-          doneby: task.doneby,
-          done: task.done,
-        },
-      });
+      let created = await prisma.createTask(task);
       if (created) {
         return res.status(200).json({ task: created });
       }
