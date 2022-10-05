@@ -2,7 +2,9 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextHandler, Options } from 'next-connect';
 import { v4 as uuidv4 } from 'uuid';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import databaseWrapper from '../lib/db';
+
 // nextConnect onError and onNoMatch middleware
 export const errorHandler = {
   onError(
@@ -21,19 +23,19 @@ export const errorHandler = {
       error: `Sorry something Happened! ${error.userMessage}`,
       errorRef: uid,
     });
-    const prisma = new PrismaClient();
-    prisma.$connect();
-    prisma.errors.create({
-      data: {
-        message: error.debugMessage,
-        user_message: error.userMessage,
-        error_ref: uid,
-        url: req.url || '',
-        method: req.method || '',
-        headers: JSON.stringify(req.headers) || '',
-      },
+    let message = `${error.debugMessage}` || 'No debug message';
+    let user_message = `${error.userMessage}` || 'No user message';
+    let headers = JSON.stringify(req.headers) || 'No headers';
+    let url = `${req.url}` || 'No url';
+    let method = `${req.method}` || 'No method';
+    const prisma = new databaseWrapper();
+    prisma.createError({
+      message,
+      user_message,
+      headers,
+      url,
+      method,
     });
-    prisma.$disconnect();
   },
   onNoMatch(req: NextApiRequest, res: NextApiResponse) {
     res.status(405).json({ error: `Method '${req.method}' Not Allowed` });

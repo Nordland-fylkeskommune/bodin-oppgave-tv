@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import { NextApiRequest } from 'next';
 import { v4 as uuidv4 } from 'uuid';
 
 class databaseWrapper {
@@ -22,16 +23,16 @@ class databaseWrapper {
     }
     return this;
   }
-  async createError(error: any, req: any) {
+  async createError(error: Prisma.errorsCreateInput) {
     const uid = uuidv4();
     await this.prisma.errors.create({
       data: {
-        message: error.debugMessage,
-        user_message: error.userMessage,
+        message: error.message,
+        user_message: error.user_message,
         error_ref: uid,
-        url: req.url || '',
-        method: req.method || '',
-        headers: JSON.stringify(req.headers) || '',
+        url: error.url || '',
+        method: error.method || '',
+        headers: JSON.stringify(error.headers) || '',
       },
     });
     return uid;
