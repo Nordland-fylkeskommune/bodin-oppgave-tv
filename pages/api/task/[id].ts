@@ -104,7 +104,6 @@ const handler = nextConnect({
       };
     }
   })
-
   .delete(
     async (
       req: TaskIDDeleteRequest,
