@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma, PrismaClient } from '@prisma/client';
+import { errorHandler } from '../../../middleware/nextConnect';
 interface errorResponse {
   error: string;
   errorRef: string;
@@ -72,7 +73,11 @@ export class keyHandler {
     });
   }
 }
-
+/**
+ *
+ * @param dateToValidate
+ * @returns {boolean} given a date string, returns true if it is a valid date
+ */
 export let validateDateString = (dateToValidate: any): boolean => {
   console.log(dateToValidate);
   if (typeof dateToValidate !== 'string') return false;
@@ -86,6 +91,12 @@ type keyGuard = {
   required: boolean;
 };
 
+/**
+ *
+ * @param task {Task} the task to validate
+ * @param keys {keyGuard[]} the keys to validate
+ * @returns { errors: string[], allowed: boolean } returns an object with an array of errors and a boolean indicating if the task is allowed
+ */
 export const guard = (
   task: Task,
   keys: keyGuard[],
@@ -118,18 +129,7 @@ export const guard = (
   }
   return { errors, allowed: errors.length === 0 };
 };
-const handler = nextConnect({
-  onError(error, req: NextApiRequest, res: NextApiResponse<errorResponse>) {
-    console.error(error);
-    res.status(501).json({
-      error: `Sorry something Happened! ${error.userMessage}`,
-      errorRef: uuidv4(),
-    });
-  },
-  onNoMatch(req: NextApiRequest, res: NextApiResponse) {
-    res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
-  },
-})
+const handler = nextConnect(errorHandler)
   // GET /api/task
   // TODO: #9 #10 add possibility to filter by any field
   .get(
