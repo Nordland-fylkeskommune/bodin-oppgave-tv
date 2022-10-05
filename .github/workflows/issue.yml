@@ -6,7 +6,8 @@ jobs:
   add-to-project:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/add-to-project@0.3.0
+      - name: Add To GitHub projects
+        uses: actions/add-to-project@v0.3.0
         with:
           project-url: "https://github.com/orgs/Nordland-fylkeskommune/projects/5"
           github-token: ${{ secrets.GITHUB_TOKEN }}
