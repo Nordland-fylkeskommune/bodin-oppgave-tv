@@ -1,8 +1,9 @@
 on: 
   push:
-    branches: [ "*" ]
+    branches: [ "main", "development", "staging" ]
+  pull_request:
+    branches: [ "main", "development", "staging" ]
   workflow_dispatch:
-    
 jobs:
   # setup a test database
   mysql:
