@@ -1,6 +1,8 @@
 on: 
   push:
-    branches: [ "danielmb/*" ]
+    branches: [ "*" ]
+  workflow_dispatch:
+    
 jobs:
   # setup a test database
   mysql:
@@ -42,3 +44,9 @@ jobs:
           start: npm run start
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 10
+      - name: Upload cypress video
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-videos
+          path: cypress/videos
