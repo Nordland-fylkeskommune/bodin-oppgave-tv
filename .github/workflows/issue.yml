@@ -1,7 +1,7 @@
 name: Automatically add the issue to the project board
 on:
   issues:
-    types: [opened, edited]
+    types: [opened]
 jobs:
   add-to-project:
     runs-on: ubuntu-latest
