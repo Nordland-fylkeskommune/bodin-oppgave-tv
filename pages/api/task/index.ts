@@ -1,9 +1,8 @@
+import { Prisma } from '@prisma/client';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
-import { v4 as uuidv4 } from 'uuid';
-import { errorHandler } from '../../../middleware/nextConnect';
-import { Prisma } from '@prisma/client';
 import databaseWrapper from '../../../lib/db';
+import { errorHandler } from '../../../middleware/nextConnect';
 interface errorResponse {
   error: string;
   errorRef: string;
@@ -20,8 +19,16 @@ export type Task = {
   doneby?: string;
   done?: string;
 };
+
+export interface TaskIDGetRequest extends NextApiRequest {
+  body: {
+    task?: Task;
+    or?: boolean;
+  };
+}
 export interface taskIndexPostRequest extends NextApiRequest {
   body: {
+    // add function to search for in task, and equal to task
     task: Task;
   };
 }
@@ -72,6 +79,9 @@ export class keyHandler {
       key.required = false;
       return key;
     });
+  }
+  get() {
+    return this.put();
   }
 }
 /**
@@ -134,11 +144,32 @@ const handler = nextConnect(errorHandler)
   // GET /api/task
   // TODO: #9 #10 add possibility to filter by any field
   .get(
-    async (req: NextApiRequest, res: NextApiResponse<taskIndexGetResponse>) => {
-      // prisma
+    async (
+      req: TaskIDGetRequest,
+      res: NextApiResponse<taskIndexGetResponse>,
+    ) => {
+      let { errors, allowed } = guard(
+        req.body.task || {},
+        new keyHandler().get(),
+      );
+      if (!req.body.task) {
+        errors.push('Task is missing');
+        allowed = false;
+      }
+      req.body.task = req.body.task as Task;
+      if (!allowed) {
+        throw {
+          userMessage: 'Missing, wrong or invalid data',
+          debugMessage: errors.join(', '),
+          errorResponseCode: 400,
+        };
+      }
       const prisma = new databaseWrapper();
-      const tasks = await prisma.getTasks();
-      res.status(200).json({ tasks: tasks });
+      const tasks = await prisma.findTaskByAnyField(
+        req.body.task,
+        req.body.or ? 'OR' : 'AND',
+      );
+      res.status(200).json({ tasks });
     },
   )
   // POST /api/task
