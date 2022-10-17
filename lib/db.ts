@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { NextApiRequest } from 'next';
 import { v4 as uuidv4 } from 'uuid';
-
+import { Task } from '../pages/api/task';
+export type TaskSearch = { field: string; value: string };
 class databaseWrapper {
   prisma: PrismaClient;
   connected: boolean;
@@ -44,13 +44,52 @@ class databaseWrapper {
   }
   async getTask(id: number) {
     await this.connect();
-
     return await this.prisma.tasks.findUnique({
       where: {
         id: id,
       },
     });
   }
+  async findTaskByAnyField(search: Task, type: 'AND' | 'OR') {
+    await this.connect();
+    return await this.prisma.tasks.findMany({
+      where: {
+        [type]: [
+          {
+            what: {
+              contains: search.what,
+            },
+          },
+          {
+            where: {
+              contains: search.where,
+            },
+          },
+          {
+            priority: {
+              equals: search.priority,
+            },
+          },
+          {
+            start: {
+              equals: search.start,
+            },
+          },
+          {
+            doneby: {
+              contains: search.doneby,
+            },
+          },
+          {
+            done: {
+              equals: search.done,
+            },
+          },
+        ],
+      },
+    });
+  }
+
   async createTask(task: Prisma.tasksCreateInput) {
     await this.connect();
 
@@ -98,5 +137,4 @@ class databaseWrapper {
     });
   }
 }
-
 export default databaseWrapper;
