@@ -152,11 +152,6 @@ const handler = nextConnect(errorHandler)
         req.body.task || {},
         new keyHandler().get(),
       );
-      if (!req.body.task) {
-        errors.push('Task is missing');
-        allowed = false;
-      }
-      req.body.task = req.body.task as Task;
       if (!allowed) {
         throw {
           userMessage: 'Missing, wrong or invalid data',
@@ -164,7 +159,12 @@ const handler = nextConnect(errorHandler)
           errorResponseCode: 400,
         };
       }
+
       const prisma = new databaseWrapper();
+      if (!req.body.task) {
+        res.status(200).json({ tasks: await prisma.getTasks() });
+      }
+      req.body.task = req.body.task as Task;
       const tasks = await prisma.findTaskByAnyField(
         req.body.task,
         req.body.or ? 'OR' : 'AND',
