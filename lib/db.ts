@@ -50,7 +50,10 @@ class databaseWrapper {
       },
     });
   }
-  async findTaskByAnyField(search: Task, type: 'AND' | 'OR') {
+  async findTaskByAnyField(
+    search: Task,
+    type: 'AND' | 'OR',
+  ): Promise<Prisma.tasksGetPayload<{}>[]> {
     await this.connect();
     return await this.prisma.tasks.findMany({
       where: {
