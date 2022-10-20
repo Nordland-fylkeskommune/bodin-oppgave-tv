@@ -1,9 +1,10 @@
 import { NextPage } from 'next';
 import { useCallback, useEffect, useState } from 'react';
-import { getUncompletedTasks, TaskAPIResponse } from '../lib/dbApi';
+import { formatDateTime, validDate } from '../lib/date';
+import { getUncompletedTasks, Task } from '../lib/dbApi';
 const Display: NextPage = () => {
-  const [tasks, setTasks] = useState<TaskAPIResponse[]>([]);
-  const [display, setDisplay] = useState<TaskAPIResponse[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [display, setDisplay] = useState<Task[]>([]);
   const [page, setPage] = useState(0);
   const [maxPage, setMaxPage] = useState(0);
   const [limit, setLimit] = useState(15);
@@ -61,22 +62,6 @@ const Display: NextPage = () => {
     }, 1001);
     return () => clearInterval(timer);
   }, []);
-  let validDate = (date: string) => {
-    const d = new Date(date);
-    return !isNaN(d.getTime());
-  };
-  let formatDateTime = (date: string | null) => {
-    if (!date) return null;
-    if (!validDate(date)) return null;
-    const d = new Date(date);
-    const YYYY = d.getFullYear();
-    const MM = ('0' + (d.getMonth() + 1)).slice(-2);
-    const DD = ('0' + d.getDate()).slice(-2);
-    const hh = ('0' + d.getHours()).slice(-2);
-    const mm = ('0' + d.getMinutes()).slice(-2);
-    const ss = ('0' + d.getSeconds()).slice(-2);
-    return `${DD}/${MM}/${YYYY} ${hh}:${mm}`;
-  };
 
   return (
     <div className="bg-slate-400 min-h-screen max-h-screen">
@@ -112,10 +97,10 @@ const Display: NextPage = () => {
                   bg = 'bg-slate-500';
                 }
               }
-              if (validDate(task.doneby)) {
+              if (task.doneby !== null && validDate(task.doneby)) {
                 const doneby = new Date(task.doneby);
                 const now = new Date();
-                if (doneby > now) {
+                if (doneby < now) {
                   bg = 'bg-red-500 animate-pulse';
                 }
               }
@@ -144,7 +129,7 @@ const Display: NextPage = () => {
         </table>
         <div>
           <p>
-            Page {page} of {maxPage} ({tasks.length} tasks)
+            Page {page} of {maxPage} ({display.length}/{tasks.length} tasks)
           </p>
         </div>
       </div>
