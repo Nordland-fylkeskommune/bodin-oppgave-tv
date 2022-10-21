@@ -81,9 +81,7 @@ const Footer = () => {
         </Link>
         <span className="mx-2">|</span>
         <Link href="/manager">
-          <a href="/manager" className="text-white">
-            i menyen
-          </a>
+          <a className="text-white">i menyen</a>
         </Link>
       </div>
     </div>
