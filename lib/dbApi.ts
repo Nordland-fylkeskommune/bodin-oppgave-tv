@@ -3,8 +3,8 @@ export type Task = {
   what: string;
   where: string;
   priority: number;
-  start: string;
-  doneby: string;
+  start: string | null;
+  doneby: string | null;
   done: string | null;
   created_at: string;
   updated_at: string;

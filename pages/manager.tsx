@@ -334,8 +334,8 @@ const Manager: NextPage = () => {
       let sortedTasks = tasks.sort((a, b) => {
         let aDate = new Date(0);
         let bDate = new Date(0);
-        if (validDate(a.doneby)) aDate = new Date(a.doneby);
-        if (validDate(b.doneby)) bDate = new Date(b.doneby);
+        if (validDate(a.doneby)) aDate = new Date(a.doneby as string);
+        if (validDate(b.doneby)) bDate = new Date(b.doneby as string);
         return bDate.getTime() - aDate.getTime();
       });
       setTasks(sortedTasks);

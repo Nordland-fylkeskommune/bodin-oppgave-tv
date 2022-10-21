@@ -2,56 +2,82 @@ import { NextPage } from 'next';
 import { useCallback, useEffect, useState } from 'react';
 import { formatDateTime, validDate } from '../lib/date';
 import { getUncompletedTasks, Task } from '../lib/dbApi';
+
+let getCurrentPage = (limit: number, offset: number) => {
+  return Math.floor(offset / limit) + 1;
+};
+
+let getOffset = (limit: number, page: number) => {
+  return (page - 1) * limit;
+};
+
+let getPages = (limit: number, total: number) => {
+  return Math.ceil(total / limit);
+};
 const Display: NextPage = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [display, setDisplay] = useState<Task[]>([]);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(0);
   const [limit, setLimit] = useState(15);
   const [currentTimeAsString, setCurrentTimeAsString] =
     useState('00:00:00,000'); // hh:mm:ss
-
+  // useCallBack
   const updateTasks = useCallback(async () => {
     getUncompletedTasks().then((tasks) => {
       let sortedTasks = tasks.sort((a, b) => {
-        let aDate = new Date(0);
-        let bDate = new Date(0);
-        if (validDate(a.doneby)) aDate = new Date(a.doneby);
-        if (validDate(b.doneby)) bDate = new Date(b.doneby);
-        return bDate.getTime() - aDate.getTime();
+        // TODO: Fix sorting...
+        let aDoneBy = validDate(a.doneby)
+          ? new Date(a.doneby as string)
+          : new Date();
+        let bDoneBy = validDate(b.doneby)
+          ? new Date(b.doneby as string)
+          : new Date();
+        let now = new Date();
+        if (aDoneBy < now) {
+          return -1;
+        } else if (bDoneBy < now) {
+          return 1;
+        }
+
+        let aStart = validDate(a.start)
+          ? new Date(a.start as string)
+          : new Date();
+        let bStart = validDate(b.start)
+          ? new Date(b.start as string)
+          : new Date();
+
+        if (aStart < bStart) {
+          return -1;
+        }
+        if (aStart > bStart) {
+          return 1;
+        }
+        return 0;
       });
       setTasks(sortedTasks);
+      setMaxPage(getPages(limit, sortedTasks.length));
     });
-  }, []);
+  }, [limit]);
 
   useEffect(() => {
-    // sort tasks by doneby date
     updateTasks();
-    const interval = setInterval(() => {
+    let interval = setInterval(() => {
       updateTasks();
-    }, 10000);
+    }, 2000);
     return () => clearInterval(interval);
   }, [updateTasks]);
 
-  let handlePage = useCallback(async () => {
-    let currentPage = page;
-    if (page * limit >= tasks.length) {
-      currentPage = 1;
-      setPage(1);
-    } else {
-      currentPage = page + 1;
-      setPage(page + 1);
-    }
-    setDisplay(tasks.slice((currentPage - 1) * limit, currentPage * limit));
-    setMaxPage(Math.ceil(tasks.length / limit));
-  }, [page, limit, tasks]);
-
+  /* change page every 5 seconds */
   useEffect(() => {
-    const interval = setInterval(() => {
-      handlePage();
-    }, 5222);
+    console.log(page);
+    let interval = setInterval(() => {
+      let newPage = page + 1;
+      if (newPage > maxPage) newPage = 1;
+      setPage(newPage);
+    }, 5000);
     return () => clearInterval(interval);
-  }, [handlePage]);
+  }, [page, maxPage]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
@@ -88,48 +114,54 @@ const Display: NextPage = () => {
             </tr>
           </thead>
           <tbody>
-            {display.map((task) => {
-              let bg = 'bg-slate-400';
-              if (validDate(task.start)) {
-                const start = new Date(task.start);
-                const now = new Date();
-                if (start < now) {
-                  bg = 'bg-slate-500';
+            {tasks
+              .filter((_task, i) => {
+                let offset = getOffset(limit, page);
+                return i >= offset && i < offset + limit;
+              })
+              .map((task) => {
+                if (!task) return null;
+                let bg = 'bg-slate-400';
+                if (validDate(task.start)) {
+                  const start = new Date(task.start || '');
+                  const now = new Date();
+                  if (start < now) {
+                    bg = 'bg-slate-500';
+                  }
                 }
-              }
-              if (task.doneby !== null && validDate(task.doneby)) {
-                const doneby = new Date(task.doneby);
-                const now = new Date();
-                if (doneby < now) {
-                  bg = 'bg-red-500 animate-pulse';
+                if (task.doneby !== null && validDate(task.doneby)) {
+                  const doneby = new Date(task.doneby);
+                  const now = new Date();
+                  if (doneby < now) {
+                    bg = 'bg-red-500 animate-pulse';
+                  }
                 }
-              }
 
-              return (
-                <tr key={task.id} className={` ${bg}`}>
-                  <td className="border px-4 py-2">{task.what}</td>
-                  <td className="border px-4 py-2">{task.where}</td>
-                  <td className="border px-4 py-2">
-                    <span className="w-2">
-                      {task.priority === 1 && '🔴'}
-                      {task.priority === 2 && '🟡'}
-                      {task.priority === 3 && '🟢'}
-                    </span>
-                  </td>
-                  <td className="border px-4 py-2">
-                    {formatDateTime(task.start) ?? 'Snart'}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {formatDateTime(task.doneby) ?? 'Ingen frist'}
-                  </td>
-                </tr>
-              );
-            })}
+                return (
+                  <tr key={task.id} className={` ${bg}`}>
+                    <td className="border px-4 py-2">{task.what}</td>
+                    <td className="border px-4 py-2">{task.where}</td>
+                    <td className="border px-4 py-2">
+                      <span className="w-2">
+                        {task.priority === 1 && '🔴'}
+                        {task.priority === 2 && '🟡'}
+                        {task.priority === 3 && '🟢'}
+                      </span>
+                    </td>
+                    <td className="border px-4 py-2">
+                      {formatDateTime(task.start) ?? 'Snart'}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {formatDateTime(task.doneby) ?? 'Ingen frist'}
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
         <div>
           <p>
-            Page {page} of {maxPage} ({display.length}/{tasks.length} tasks)
+            Page {page} of {getPages(limit, tasks.length)}
           </p>
         </div>
       </div>

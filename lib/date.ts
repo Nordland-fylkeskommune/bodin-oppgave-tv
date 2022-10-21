@@ -1,6 +1,14 @@
-export let validDate = (date: string) => {
+export let validDate = (date: string | null) => {
+  if (date === null) return false;
   const d = new Date(date);
   return !isNaN(d.getTime());
+};
+
+export let turnStringIntoDate = (date: string | null) => {
+  if (validDate(date)) {
+    return new Date(date as string);
+  }
+  return null;
 };
 
 export let formatDateTime = (date: string | null) => {
