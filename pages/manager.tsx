@@ -80,9 +80,11 @@ const Footer = () => {
           <a className="text-white">på skjermen</a>
         </Link>
         <span className="mx-2">|</span>
-        <a href="/manager" className="text-white">
-          i menyen
-        </a>
+        <Link href="/manager">
+          <a href="/manager" className="text-white">
+            i menyen
+          </a>
+        </Link>
       </div>
     </div>
   );
