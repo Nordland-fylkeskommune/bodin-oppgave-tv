@@ -1,10 +1,9 @@
+import { Prisma } from '@prisma/client';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
-import { v4 as uuidv4 } from 'uuid';
-import { Prisma } from '@prisma/client';
-import { guard, keyHandler, Task } from '.';
-import { errorHandler } from '../../../middleware/nextConnect';
+import { Task } from '.';
 import databaseWrapper from '../../../lib/db';
+import { errorHandler } from '../../../middleware/nextConnect';
 // TODO: #20 #19 Move database request to lib/db.ts
 interface errorResponse {
   error: string;
@@ -60,15 +59,24 @@ const handler = nextConnect(errorHandler)
 
   .put(async (req: TaskIDPutRequest, res: NextApiResponse) => {
     try {
-      let { errors, allowed } = guard(req.body.task, new keyHandler().put());
-      if (!allowed) {
+      // let { errors, allowed } = guard(req.body.task, new keyHandler().put());
+      // if (!allowed) {
+      //   throw {
+      //     userMessage: 'Missing, wrong or invalid data',
+      //     debugMessage: errors.join(', '),
+      //     errorResponseCode: 400,
+      //   };
+      // }
+      const prisma = await new databaseWrapper().connect();
+      if (!req.body.task) {
         throw {
-          userMessage: 'Missing, wrong or invalid data',
-          debugMessage: errors.join(', '),
+          userMessage:
+            'Please provide the updated data fields as a JSON object in task key',
+          debugMessage:
+            'Please provide the updated data fields as a JSON object in task key',
           errorResponseCode: 400,
         };
       }
-      const prisma = await new databaseWrapper().connect();
       let updated = await prisma.updateTaskIfExist(
         Number(req.query.id),
         req.body.task,
@@ -80,7 +88,6 @@ const handler = nextConnect(errorHandler)
           debugMessage: 'Task not found',
           errorResponseCode: 404,
         };
-      console.log(updated);
       return res.status(200).json({ task: updated });
     } catch (error) {
       throw {

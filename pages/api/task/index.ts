@@ -90,7 +90,6 @@ export class keyHandler {
  * @returns {boolean} given a date string, returns true if it is a valid date
  */
 export let validateDateString = (dateToValidate: any): boolean => {
-  console.log(dateToValidate);
   if (typeof dateToValidate !== 'string') return false;
   if (dateToValidate.length === 0) return false;
   if (isNaN(Date.parse(dateToValidate))) return false;
@@ -162,7 +161,7 @@ const handler = nextConnect(errorHandler)
 
       const prisma = new databaseWrapper();
       if (!req.body.task) {
-        res.status(200).json({ tasks: await prisma.getTasks() });
+        return res.status(200).json({ tasks: await prisma.getTasks() });
       }
       req.body.task = req.body.task as Task;
       const tasks = await prisma.findTaskByAnyField(

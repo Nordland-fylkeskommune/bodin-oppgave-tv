@@ -22,6 +22,7 @@
     "next": "12.2.5",
     "next-connect": "^0.13.0",
     "react": "18.2.0",
+    "react-datepicker": "^4.8.0",
     "react-dom": "18.2.0",
     "uuid": "^9.0.0"
   },
@@ -29,6 +30,7 @@
     "@faker-js/faker": "^7.5.0",
     "@types/node": "18.7.13",
     "@types/react": "18.0.17",
+    "@types/react-datepicker": "^4.4.2",
     "@types/react-dom": "18.0.6",
     "@types/uuid": "^8.3.4",
     "autoprefixer": "^10.4.12",
