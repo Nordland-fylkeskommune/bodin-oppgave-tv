@@ -8,11 +8,13 @@ services:
     # (this is just an example, not intended to be a production configuration)
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    networks:
+      - bodin-stack
     environment:
-      MYSQL_ROOT_PASSWORD: example
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: oppgavetv
     ports:
-      - 3307:3307
+      - 3306:3306
   adminer:
     image: adminer
     restart: always
@@ -21,16 +23,46 @@ services:
 
 
   bodin-web:
-    image: node:18
-    build: . 
+    build: 
+      context: ./
+      target: develop
+    image: bodintv
+    container_name: bodintv
+    init: true
+    networks:
+      - bodin-stack
+    command: npm run dev
     ports:
       - 3000:3000
-    restart: always
-
     volumes:
-      - test-vol:./test-vol
+      - /usr/app/node_modules
+      - ./:/usr/app
     depends_on:
       - bodin-db
+    environment:
+      - DATABASE_URL=mysql://root:root@bodin-oppgave-tv-bodin-db-1:3306/oppgavetv
 
-volumes:
-  test-vol:
+  bodin-web-storybook:
+    build: 
+      context: ./
+      target: develop
+    image: bodintv-storybook
+    container_name: bodintv-storybook
+    init: true
+    networks:
+      - bodin-stack
+    command: npm run storybook
+    ports:
+      - 6006:6006
+    volumes:
+      - /usr/app/node_modules
+      - ./:/usr/app
+    depends_on:
+      - bodin-db
+    environment:
+      - DATABASE_URL=mysql://root:root@bodin-db:3307/oppgavetv
+
+networks:
+  bodin-stack:
+    
+   
