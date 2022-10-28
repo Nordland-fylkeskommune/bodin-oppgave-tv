@@ -1,18 +1,28 @@
-FROM node:18 
 
-ENV PORT 3000
+# Dockerfile for NextJS with Prism
+FROM node:18-alpine as install
 
-RUN mkdir -p /usr/src/bodintv/app
-WORKDIR /usr/src/bodintv/app
+WORKDIR /usr/app
 
-COPY package*.json /usr/src/bodintv/app
+COPY ./package.json ./package-lock.json ./
+COPY ./prisma ./prisma/
 
-RUN npm install
+RUN npm i --silent
 
-COPY . /usr/src/bodintv/app
+RUN npm run prisma\:generate
 
-RUN npm run build
-EXPOSE 3000
 
-CMD "npm" "run" "dev"
+COPY . .
+#
+FROM node:18-alpine as develop
 
+
+# Create and change into a directory in the container
+WORKDIR /usr/app
+
+COPY --from=install /usr/app/. .
+COPY --from=install /usr/app/node_modules ./node_modules
+
+COPY . .
+
+RUN npm run prisma\:generate
